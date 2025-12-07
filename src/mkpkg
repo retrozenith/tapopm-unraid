@@ -59,10 +59,6 @@ else
     #cp --parents -f $(find . -type f ! \( -iname "pkg_build.sh" -o -iname "sftp-config.json" -o -iname ".DS_Store"  \) ) "${TMPDIR}/"
     cp --recursive --dereference . "${TMPDIR}/"
     cd "$TMPDIR/"
-    
-    # Clean up Windows metadata files (Zone.Identifier)
-    find . -name "*:Zone.Identifier" -type f -delete
-    
     makepkg -l y -c y "${PACKAGE}"
     cd "$ARCHIVE/"
     md5sum $(basename "$PACKAGE") > "$MD5"

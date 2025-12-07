@@ -5,6 +5,23 @@
 <!ENTITY version   "2025.12.07">
 <!ENTITY launch    "Settings/TapoPMSettings">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/retrozenith/tapopm-unraid/main">
+<!ENTITY pluginURL "&gitURL;/&name;.plg">
+<!ENTITY pkgURL    "&gitURL;/pkg">
+<!ENTITY plgPATH   "/boot/config/plugins/&name;">
+<!ENTITY plgNAME   "&name;-&version;-x86_64">
+<!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+]>
+<PLUGIN name="&name;" author="&author;" version="&version;" icon="tapopm.png" launch="&launch;" pluginURL="&pluginURL;">
+<CHANGES>
+##&name;
+###2025.12.07
+- Initial Tapo P110 conversion.
+</CHANGES>
+
+ <FILE Name="&plgPATH;/&plgNAME;.txz" Min="6.9.1" Run="upgradepkg --install-new">
+  <URL>&pkgURL;/&plgNAME;.txz</URL>
+ </FILE>
+ <FILE Run="/bin/bash" Method="remove">
   <INLINE>
    echo "Removing &name;..."
    removepkg &plgPATH;/*.txz
