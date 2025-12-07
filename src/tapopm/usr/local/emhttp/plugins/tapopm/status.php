@@ -9,6 +9,7 @@ $tapopm_costs_price = isset($tapopm_cfg['COSTS_PRICE']) ? $tapopm_cfg['COSTS_PRI
 $tapopm_costs_unit = isset($tapopm_cfg['COSTS_UNIT']) ? $tapopm_cfg['COSTS_UNIT'] : "USD";
 
 if ($tapopm_ip == "" || $tapopm_email == "" || $tapopm_pass == "") {
+    error_log("Tapopm: Configuration missing");
     die(json_encode(["error" => "Configuration missing"]));
 }
 
@@ -51,6 +52,7 @@ try {
     echo json_encode($json);
 
 } catch (Exception $e) {
+    error_log("Tapopm Error: " . $e->getMessage());
     header('HTTP/1.1 500 Internal Server Error');
     echo json_encode(['error' => $e->getMessage()]);
 }

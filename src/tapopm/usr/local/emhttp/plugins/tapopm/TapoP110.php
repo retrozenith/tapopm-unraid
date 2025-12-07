@@ -25,6 +25,9 @@ class TapoP110 {
             "private_key_type" => OPENSSL_KEYTYPE_RSA,
         );
         $res = openssl_pkey_new($config);
+        if (!$res) {
+            throw new Exception("OpenSSL pkey generation failed: " . openssl_error_string());
+        }
         openssl_pkey_export($res, $this->privateKey);
         $details = openssl_pkey_get_details($res);
         $this->publicKey = $details['key'];
