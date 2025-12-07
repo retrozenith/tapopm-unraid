@@ -74,3 +74,19 @@ $mytiles[$pluginname]['column2'] =
 EOT;
 
 ?>
+
+<script>
+function updateTapoPM() {
+    $.getJSON('/plugins/tapopm/status.php', function(data) {
+        if (data && !data.error) {
+            $('#tapopm_power').text(data.Power.toFixed(1) + ' W');
+            $('#tapopm_today').text(data.Today.toFixed(2) + ' kWh');
+            $('#tapopm_month').text(data.Total.toFixed(2) + ' kWh');
+        }
+    });
+}
+
+// Initial update after 2 seconds, then every 30 seconds
+setTimeout(updateTapoPM, 2000);
+setInterval(updateTapoPM, 30000);
+</script>
