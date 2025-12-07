@@ -1,0 +1,76 @@
+Menu="Dashboard:0"
+Cond="$var['fsState'] == 'Started'"
+---
+<?php
+
+$pluginname = "Tapo Power";
+
+// Get energy data from our Go binary
+$tapopm_cfg = parse_plugin_cfg("tapopm");
+$tapopm_ip = isset($tapopm_cfg['TAPO_IP']) ? $tapopm_cfg['TAPO_IP'] : "";
+$tapopm_email = isset($tapopm_cfg['TAPO_EMAIL']) ? $tapopm_cfg['TAPO_EMAIL'] : "";
+$tapopm_pass = isset($tapopm_cfg['TAPO_PASS']) ? $tapopm_cfg['TAPO_PASS'] : "";
+
+$power = "N/A";
+$today = "N/A";
+$month = "N/A";
+
+if ($tapopm_ip != "" && $tapopm_email != "" && $tapopm_pass != "") {
+    $cmd = escapeshellcmd("/usr/local/bin/tapo-cli") . 
+           " -ip " . escapeshellarg($tapopm_ip) . 
+           " -email " . escapeshellarg($tapopm_email) . 
+           " -password " . escapeshellarg($tapopm_pass) . " 2>&1";
+    
+    $output = shell_exec($cmd);
+    
+    // Find JSON in output
+    $lines = explode("\n", $output);
+    $jsonStart = false;
+    $jsonData = "";
+    foreach ($lines as $line) {
+        if (strpos($line, '{') !== false) {
+            $jsonStart = true;
+        }
+        if ($jsonStart) {
+            $jsonData .= $line;
+        }
+    }
+    
+    $data = json_decode($jsonData, true);
+    
+    if ($data !== null) {
+        $power_mw = isset($data['current_power']) ? $data['current_power'] : 0;
+        $today_wh = isset($data['today_energy']) ? $data['today_energy'] : 0;
+        $month_wh = isset($data['month_energy']) ? $data['month_energy'] : 0;
+        
+        $power = round($power_mw / 1000, 1) . " W";
+        $today = round($today_wh / 1000, 2) . " kWh";
+        $month = round($month_wh / 1000, 2) . " kWh";
+    }
+}
+
+$mytiles[$pluginname]['column2'] =
+<<<EOT
+<tbody id="tapopm" title="$pluginname">
+<tr><td><i class='fa fa-plug f32'></i><div class='section'>$pluginname<span><br>Power Monitor</span><br></div>
+<a href="/Dashboard/Settings/TapoPMSettings" title="_(Go to Tapo settings)_"><i class="fa fa-fw fa-cog control"></i></a></td></tr></td></tr>
+<tr><td>
+<div style="display: flex; justify-content: space-around; padding: 10px;">
+    <div style="text-align: center;">
+        <strong>Current</strong><br>
+        <span id="tapopm_power" style="font-size: 1.2em; color: #f39c12;">$power</span>
+    </div>
+    <div style="text-align: center;">
+        <strong>Today</strong><br>
+        <span id="tapopm_today" style="font-size: 1.2em; color: #3498db;">$today</span>
+    </div>
+    <div style="text-align: center;">
+        <strong>Month</strong><br>
+        <span id="tapopm_month" style="font-size: 1.2em; color: #2ecc71;">$month</span>
+    </div>
+</div>
+</td></tr>
+</tbody>
+EOT;
+
+?>
