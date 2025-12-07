@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "tapopm">
 <!ENTITY author    "Flroain Victor (retrozenith)">
-<!ENTITY version   "2025.12.07a">
+<!ENTITY version   "2025.12.07b">
 <!ENTITY launch    "Settings/TapoPMSettings">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/retrozenith/tapopm-unraid/main">
 <!ENTITY pluginURL "&gitURL;/&name;.plg">
