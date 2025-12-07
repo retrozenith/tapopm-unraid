@@ -1,0 +1,124 @@
+Menu="Dashboard"
+Icon="ups"
+---
+<style type="text/css">
+    <?php
+        $tapopm_cfg = parse_plugin_cfg("tapopm",true);
+        $sortnr = $N+2
+    ?>
+    #dash_tapopm_settings i, #tapopm_view {margin-top:0px;}
+</style>
+<table id='db-box1' class='dash_tapopm dashboard box1' style="display:none">
+    <thead sort='<?=$sortnr?>'>
+	    <tr class='hidden'>
+		    <td></td>
+		    <td colspan='3'></td>
+		<td></td>
+	    </tr>
+    </thead>
+    <tbody sort='<?=$sortnr?>' class='sortable'>
+	    <tr>
+		    <td></td>
+		    <td colspan='3' class='next'>
+                <i class='icon-ups'></i>
+                <div class='section'>_(Tapo Power Monitor)_<br><span id='load'>_(Usage)_: <span class='tapopm-energy-power'>0</span> W</span><br><br></div>
+                <i class='fa fa-fw chevron' id='tapopm_view' onclick='toggleChevron("tapopm_view",0)'></i>
+                <a href='/Settings/TapoPMSettings' title="_(Go to Tapo Power Monitor settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
+            </td>
+            <td></td>
+
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Today:</td>
+                <td><span class="tapopm-energy-today"></span> kWh</td>
+                <td><span class="tapopm-costs_today"></span> <span class="tapopm-costs_unit"></span></td>
+                <td></td>
+            </tr>
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Yesterday:</td>
+                <td><span class="tapopm-energy-yesterday"></span> kWh</td>
+                <td><span class="tapopm-costs_yesterday"></span> <span class="tapopm-costs_unit"></span></td>
+                <td></td>
+            </tr>
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Total:</td>
+                <td><span class="tapopm-energy-total"></span> kWh</td>
+                <td><span class="tapopm-costs_total"></span> <span class="tapopm-costs_unit"></span></td>
+                <td></td>
+            </tr>
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Power</td>
+                <td colspan="2"><span class="tapopm-energy-power"></span> W</td>
+                <td></td>
+            </tr>
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Voltage</td>
+                <td colspan="2"><span class="tapopm-energy-voltage"></span> V</td>
+                <td></td>
+            </tr>
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Current</td>
+                <td colspan="2"><span class="tapopm-energy-current"></span> A</td>
+                <td></td>
+            </tr>
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Apparent power</td>
+                <td colspan="2"><span class="tapopm-energy-apparentpower"></span> VA</td>
+                <td></td>
+            </tr>
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Reactive power</td>
+                <td colspan="2"><span class="tapopm-energy-reactivepower"></span> VAr</td>
+                <td></td>
+            </tr>
+            <tr class="tapopm_view">
+                <td></td>
+                <td>Efficiency</td>
+                <td colspan="2"><span class="tapopm-energy-efficiency"></span> %</td>
+                <td></td>
+            </tr>
+        </tr>
+    </tbody>
+</table>
+<script>
+const tapopm_status = () => {
+    $.getJSON("/plugins/tapopm/status.php", (data) => {
+        if (data) {
+            $(".tapopm-energy-power").html(data.Power);
+            $(".tapopm-energy-today").html(data.Today);
+            $(".tapopm-energy-yesterday").html(data.Yesterday);
+            $(".tapopm-energy-total").html(data.Total);
+            $(".tapopm-energy-voltage").html(data.Voltage);
+            $(".tapopm-energy-current").html(data.Current);
+            $(".tapopm-energy-apparentpower").html(data.ApparentPower);
+            $(".tapopm-energy-reactivepower").html(data.ReactivePower);
+            $(".tapopm-energy-efficiency").html((Number.parseFloat(data.Factor) * 100).toFixed());
+            $(".tapopm-costs_today").html((Number.parseFloat(data.Costs_Price) * Number.parseFloat(data.Today)).toFixed(2));
+            $(".tapopm-costs_yesterday").html((Number.parseFloat(data.Costs_Price) * Number.parseFloat(data.Yesterday)).toFixed(2));
+            $(".tapopm-costs_total").html((Number.parseFloat(data.Costs_Price) * Number.parseFloat(data.Total)).toFixed(2));
+            $(".tapopm-costs_unit").html(data.Costs_Unit);
+        }
+    });
+};
+$(tapopm_status);
+if (<?=$tapopm_cfg['UIREFRESH'];?>) {
+    setInterval(tapopm_status, <?=$tapopm_cfg['UIREFRESH'];?>);
+}
+$(function() {
+  // append data from the table into the correct one
+  $("#db-box1").append($(".dash_tapopm").html());
+  
+  // reload toggle to get the correct state
+  toggleView('tapopm_view',true);
+  
+  // reload sorting to get the stored data (cookie)
+  sortTable($('#db-box1'),$.cookie('db-box1'));
+});
+</script>

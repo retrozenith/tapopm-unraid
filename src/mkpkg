@@ -1,23 +1,48 @@
 #!/bin/bash
 if [ $# -eq 0 ]; then
     echo "Usage: mkpkg directory_name"
+    exit 1
 else
-    DIR="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")/${@}"
+    # Better directory resolution
+    INPUT_ARG="${@%/}" # Strip trailing slash
+    SCRIPT_DIR="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
+    
+    # Check if argument is absolute, relative to CWD, or relative to script
+    if [ -d "$INPUT_ARG" ]; then
+        DIR="$(readlink -f "$INPUT_ARG")"
+    elif [ -d "$SCRIPT_DIR/$INPUT_ARG" ]; then
+        DIR="$SCRIPT_DIR/$INPUT_ARG"
+    else
+        echo "Error: Directory '$INPUT_ARG' not found."
+        exit 1
+    fi
+
     TMPDIR=/tmp/tmp.$(( $RANDOM * 19318203981230 + 40 ))
     PLUGIN=$(basename ${DIR})
-    #ARCHIVE="$(dirname $(dirname ${DIR}))/archive"
-    ARCHIVE="$(dirname $(dirname ${DIR}))/pkg"
+    
+    # Assume script is in src/, so parent is root.
+    # But if variables are weird, let's just try to find the 'pkg' dir relative to the plugin dir's parent
+    # Structure: root/src/tapopm -> Parent is src. Grandparent is root.
+    # Actually, previous logic assumed mkpkg is in src/ and plugin is in src/tapopm.
+    # ARCHIVE="$(dirname $(dirname ${DIR}))/pkg"
+    # If DIR is /path/to/src/tapopm, dirname is /path/to/src, dirname is /path/to. /path/to/pkg. Correct.
+    
+    PROJECT_ROOT="$(dirname "$(dirname "$DIR")")"
+    ARCHIVE="$PROJECT_ROOT/pkg"
+    mkdir -p "$ARCHIVE" # Ensure directory exists
+
     DESTDIR="$TMPDIR/usr/local/emhttp/plugins/${PLUGIN}"
-    #PLG_FILE="$(dirname $(dirname ${DIR}))/plugin/${PLUGIN}.plg"
-    PLG_FILE="$(dirname $(dirname ${DIR}))/${PLUGIN}.plg"
+    PLG_FILE="$PROJECT_ROOT/${PLUGIN}.plg"
+    
     VERSION=$(date +"%Y.%m.%d")
     ARCH="-x86_64"
     PACKAGE="${ARCHIVE}/${PLUGIN}-${VERSION}${ARCH}.txz"
     MD5="${ARCHIVE}/${PLUGIN}-${VERSION}${ARCH}.md5"
 
 
-    for x in '' a b c d e d f g h ; do
+    for x in '' a b c d e d f g h i j k l m n o p q r s t u v w x y z; do
         PKG="${ARCHIVE}/${PLUGIN}-${VERSION}${x}${ARCH}.txz"
+        echo "Looking for  ${PKG}"
         if [[ ! -f $PKG ]]; then
           PACKAGE=$PKG
           VERSION="${VERSION}${x}"
@@ -30,10 +55,14 @@ else
     sed -i "/##&name/a\###${VERSION}" "$PLG_FILE"
 
     mkdir -p "${TMPDIR}/"
-    cd "$DIR"
+    cd "$DIR" || { echo "Failed to cd to $DIR"; exit 1; }
     #cp --parents -f $(find . -type f ! \( -iname "pkg_build.sh" -o -iname "sftp-config.json" -o -iname ".DS_Store"  \) ) "${TMPDIR}/"
     cp --recursive --dereference . "${TMPDIR}/"
     cd "$TMPDIR/"
+    
+    # Clean up Windows metadata files (Zone.Identifier)
+    find . -name "*:Zone.Identifier" -type f -delete
+    
     makepkg -l y -c y "${PACKAGE}"
     cd "$ARCHIVE/"
     md5sum $(basename "$PACKAGE") > "$MD5"

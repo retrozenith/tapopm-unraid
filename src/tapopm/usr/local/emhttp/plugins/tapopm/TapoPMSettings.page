@@ -1,0 +1,50 @@
+Menu="Utilities"
+Icon="tasmotapm.png"
+Title="Tasmota Power Monitor"
+---
+<?php
+$tapopm_cfg 			= parse_plugin_cfg("tapopm",true);
+$tapopm_device_ip	= isset($tapopm_cfg['TAPO_IP']) ? $tapopm_cfg['TAPO_IP'] : "";
+$tapopm_email	= isset($tapopm_cfg['TAPO_EMAIL']) ? $tapopm_cfg['TAPO_EMAIL'] : "";
+$tapopm_device_pass	= isset($tapopm_cfg['TAPO_PASS']) ? $tapopm_cfg['TAPO_PASS'] : "";
+$tapopm_uirefresh 		= isset($tapopm_cfg['UIREFRESH']) ? $tapopm_cfg['UIREFRESH'] : "1000";
+$tapopm_costs_price	= isset($tapopm_cfg['COSTS_PRICE']) ? $tapopm_cfg['COSTS_PRICE'] : "0.0";
+$tapopm_costs_unit	= isset($tapopm_cfg['COSTS_UNIT']) ? $tapopm_cfg['COSTS_UNIT'] : "USD";
+?>
+
+<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="tapopm/tapopm.cfg" />
+
+Device IP:
+: <input id="TAPO_IP" type="text" class="stopped" name="TAPO_IP" maxlength="15" value="<?=$tapopm_device_ip;?>" title="" placeholder="" >  
+
+Email (TP-Link ID):
+: <input id="TAPO_EMAIL" type="text" class="stopped" name="TAPO_EMAIL" maxlength="50" value="<?=$tapopm_email;?>" title="" placeholder="" >  
+
+Password:
+: <input id="TAPO_PASS" type="password" class="stopped" name="TAPO_PASS" maxlength="50" value="<?=$tapopm_device_pass;?>" title="" placeholder="" >  
+
+UI Refresh rate (Milliseconds):
+: <input type="text" name="UIREFRESH" class="narrow" maxlength="50" value="<?=$tapopm_uirefresh;?>" placeholder="1000">
+
+Price per kWh for cost calculation:
+: <input id="COSTS_PRICE" type="text" class="stopped" name="COSTS_PRICE" maxlength="10" value="<?=$tapopm_costs_price;?>" title="" placeholder="0.00" >  
+
+Unit for cost calculation:
+: <input id="COSTS_UNIT" type="text" class="stopped" name="COSTS_UNIT" maxlength="10" value="<?=$tapopm_costs_unit;?>" title="" placeholder="" >  
+
+ <input id="DEFAULT" class="stopped" type="submit" value="Default" onClick="resetDATA(this.form)">
+: <input id="btnApply" type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
+</form>
+
+
+<script type="text/javascript">
+function resetDATA(form) {
+	form.TAPO_IP.value = "";
+  form.TAPO_EMAIL.value = "";
+  form.TAPO_PASS.value = "";
+  form.UIREFRESH.value = 1000;
+  form.COSTS_PRICE.value = 0.00;
+  form.COSTS_UNIT.value = "USD";
+}
+</script>
